@@ -60,6 +60,7 @@ describe('BloomDB', function () {
         input = function () { return fs.createReadStream(__dirname + "/fixtures/bloomdb.csv")
                   .pipe(split())
                   .pipe(through(function (data) {
+                    if (!data) return this.queue(null);
                     this.queue(csvrow.parse(data)); 
                   })); },
         bloomDB = new BloomDB();
@@ -92,7 +93,6 @@ describe('BloomDB', function () {
           done();
           return;
         }
-        
         client.query("DROP TABLE demo;", function (err, result) {
           if (err) {
             console.dir(err);
@@ -104,7 +104,7 @@ describe('BloomDB', function () {
       });
     });
 
-    xit('inserts documents', function (done) {
+    it('inserts documents', function (done) {
       bloomDB.insert('demo', ['one', 'two'], input(), function (err) {
         pg.connect(connectionString, function (err, client, pdone) {
           client.query("SELECT * FROM demo;", function (err, result) {
@@ -113,8 +113,8 @@ describe('BloomDB', function () {
               two: "3"
             },
             {
-              one: "Hello",
-              two: "World"
+              one: "hello",
+              two: "world"
             }]);
             pdone();
             done();
