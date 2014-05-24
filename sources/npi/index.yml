@@ -27,8 +27,7 @@ npi:
     create:
       - fetch_npi_path: set=npi_path
       - download: url=http://nppes.viva-it.com/{{npi_path}}
-      - unzip: path={{npi_path}}
-      - fix_npi: file=/npidata_(\d+)_(\d+)\.csv/
+      - 7z: path={{npi_path}}
       - csv_create: tables={{tables}}
     update:
       - fetch_npi_weekly_paths: set=npi_paths
@@ -39,7 +38,6 @@ npi:
             - clear_files
             - download: url=http://nppes.viva-it.com/{{npi_path}}
             - unzip: path={{npi_path}}
-            - fix_npi: file=/npidata_(\d+)_(\d+)\.csv/
             - csv_import: tables={{tables}}
     variables:
       tables:

@@ -1,9 +1,19 @@
-var bloomDB = require('../lib/bloomDB'),
-    Sequelize = require('sequelize');
+var BloomDB = require('../lib/bloomDB'),
+    Sequelize = require('sequelize'),
+    pg = require('pg'),
+    settings = require('../lib/settings'),
+    through = require('through'),
+    split = require('split'),
+    csvrow = require('csvrow'),
+    fs = require('fs');
 
-describe('bloomDB', function () {
+describe('BloomDB', function () {
+  afterEach(function () {
+    pg.end();
+  });
+
   it('converts a schema to a sequelize model', function () {
-    var model = bloomDB.schemaToSequelize({
+    var model = BloomDB.schemaToSequelize({
       "id": {
         composite: [
           'hello'
@@ -35,11 +45,105 @@ describe('bloomDB', function () {
     ];
 
     names.forEach(function (namePair) {
-      expect(bloomDB.safeName(namePair[0])).toEqual(namePair[1]);
+      expect(BloomDB.safeName(namePair[0])).toEqual(namePair[1]);
     });
   });
 
   it('provides safe names', function () {
-    expect(bloomDB.safeNames(['O', 'Q'])).toEqual(['o', 'q']);
+    expect(BloomDB.safeNames(['O', 'Q'])).toEqual(['o', 'q']);
+  });
+
+  describe('bloomDB object', function () {
+    var connectionString = "postgres://" + settings.sql.username + ":" +
+      settings.sql.password + "@" + settings.sql.host + ":" + settings.sql.port +
+      "/" + settings.sql.dbname,
+        input = function () { return fs.createReadStream(__dirname + "/fixtures/bloomdb.csv")
+                  .pipe(split())
+                  .pipe(through(function (data) {
+                    this.queue(csvrow.parse(data)); 
+                  })); },
+        bloomDB = new BloomDB();
+
+    beforeEach(function (done) {
+      pg.connect(connectionString, function (err, client, pdone) {
+        if (err) {
+          console.dir(err);
+          pdone();
+          done();
+          return;
+        }
+        
+        client.query("CREATE TABLE IF NOT EXISTS demo ( one varchar(255), two varchar(255) ); INSERT INTO demo VALUES ('1','2'); INSERT INTO demo VALUES ('4', '5');", function (err, result) {
+          if (err) {
+            console.dir(err);
+          }
+
+          pdone();
+          done();
+        });
+      });
+    });
+
+    afterEach(function (done) {
+      pg.connect(connectionString, function (err, client, pdone) {
+        if (err) {
+          console.dir(err);
+          pdone();
+          done();
+          return;
+        }
+        
+        client.query("DROP TABLE demo;", function (err, result) {
+          if (err) {
+            console.dir(err);
+          }
+
+          pdone();
+          done();
+        });
+      });
+    });
+
+    xit('inserts documents', function (done) {
+      bloomDB.insert('demo', ['one', 'two'], input(), function (err) {
+        pg.connect(connectionString, function (err, client, pdone) {
+          client.query("SELECT * FROM demo;", function (err, result) {
+            expect(result.rows).toEqual([{
+              one: "1",
+              two: "3"
+            },
+            {
+              one: "Hello",
+              two: "World"
+            }]);
+            pdone();
+            done();
+          });
+        });
+      });
+    });
+
+    xit('upserts documents', function (done) {
+      bloomDB.upsert('demo', ['one', 'two'], input(), function (err) {
+        pg.connect(connectionString, function (err, client, pdone) {
+          client.query("SELECT * FROM demo;", function (err, result) {
+            expect(result.rows).toEqual([{
+              one: "4",
+              two: "5"
+            },
+            {
+              one: "1",
+              two: "3"
+            },
+            {
+              one: "hello",
+              two: "world"
+            }]);
+            pdone();
+            done();
+          });
+        });
+      });
+    });
   });
 });

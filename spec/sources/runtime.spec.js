@@ -24,7 +24,7 @@ describe('sources/runtime', function () {
     };
 
     seq.prototype = {
-      execute: function (callback) {
+      execute: function (seqDesc, callback) {
         execCalled += 1;
         callback();
       }

@@ -33,6 +33,6 @@
   "version": "0.1.4",
   "devDependencies": {
     "sinon": "~1.9.1",
-    "rewire": "^2.0.0"
+    "rewire": "~2.0.0"
   }
 }

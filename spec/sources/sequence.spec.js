@@ -49,9 +49,9 @@ describe('sources/runtime', function () {
 
     source = [ {'first': 'hello=world'} ];
 
-    runtime = new Runtime(source);
+    runtime = new Runtime();
 
-    runtime.execute(function (err, context) {
+    runtime.execute(source, function (err, context) {
       expect(fakeFirstCalled).toEqual(1);
       done();
     });
@@ -63,9 +63,9 @@ describe('sources/runtime', function () {
     source = [ {'first': 'hello=world set=result'},
                {'second': 'hello={{result}}'} ];
 
-    runtime = new Runtime(source);
+    runtime = new Runtime();
 
-    runtime.execute(function (err, context) {
+    runtime.execute(source, function (err, context) {
       expect(context.result).toEqual('joe');
       expect(fakeSecondCalled).toEqual(1);
       done();
