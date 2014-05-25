@@ -10,10 +10,10 @@ describe('sources/tableDiscovery', function () {
     tone: {
       id: {
         composite: [
-          'shmo'
+          'Shmo'
         ]
       },
-      joe: '/shmo/'
+      joe: '/Shmo/'
     }
   };
 
@@ -21,7 +21,7 @@ describe('sources/tableDiscovery', function () {
     ttwo: {
       id: {
         composite: [
-          'shmo'
+          'Shmo'
         ]
       },
       joe: {
@@ -36,10 +36,10 @@ describe('sources/tableDiscovery', function () {
   var correctSchema = {
     tone: {
       id: {
-        composite: [ "shmo" ]
+        composite: [ "Shmo" ]
       },
       joe: {
-        named: /shmo/,
+        named: /Shmo/,
         type: "string"
       }
     }
@@ -47,7 +47,7 @@ describe('sources/tableDiscovery', function () {
 
   var correctEmptySchema = {
     tone: {
-      shmo: {
+      Shmo: {
         named: "shmo",
         type: "string"
       }
@@ -57,7 +57,7 @@ describe('sources/tableDiscovery', function () {
   var correctSpecifiedSchema = {
     ttwo: {
       id: {
-        composite: [ "shmo" ]
+        composite: [ "Shmo" ]
       },
       joe: {
         named: "joe",

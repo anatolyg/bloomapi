@@ -26,6 +26,7 @@ module.exports.prototype = {
     inputStream = data
       .pipe(split())
       .pipe(through(function (data) {
+        if (!data) return this.queue(null);
         this.queue(csv.parse(data)); 
       }));
 
@@ -50,7 +51,7 @@ module.exports.prototype = {
               tableSchema = bloomDB.schemaToSequelize(schema[table]),
               model = sequelize.define(table, tableSchema),
               p = model.sync().complete(function (err) {
-                if (err) deferred.reject(new Error(err));
+                if (err) return deferred.reject(new Error(err));
                 deferred.resolve(); 
               });
           return deferred.promise
