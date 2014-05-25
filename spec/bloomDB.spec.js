@@ -123,8 +123,8 @@ describe('BloomDB', function () {
       });
     });
 
-    xit('upserts documents', function (done) {
-      bloomDB.upsert('demo', ['one', 'two'], input(), function (err) {
+    it('upserts documents', function (done) {
+      bloomDB.upsert('demo', ['one', 'two'], 'one', input(), function (err) {
         pg.connect(connectionString, function (err, client, pdone) {
           client.query("SELECT * FROM demo;", function (err, result) {
             expect(result.rows).toEqual([{
